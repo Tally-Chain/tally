@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whitepaper · Tally</title>
+  <link rel="canonical" href="https://tallychain.org/whitepaper">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/"><img src="/mark.svg" width="36" height="36" alt=""> tally</a>
+    <nav>
+      <a href="/">Home</a><a href="/explorer">Explorer</a><a href="/wallet">Wallet</a><a href="/mine">Mine</a><a href="/docs">Docs</a><a class="on" href="/whitepaper">Whitepaper</a>
+    </nav>
+    <a class="btn solid desk" href="/wallet">Open wallet</a>
+    <button class="burger" type="button">Menu</button>
+  </header>
+  <main class="wrap page prose">
+    <p class="cap">Version 0.1 · testnet · November 2026</p>
+    <h1>Both halves match.</h1>
+    <p>Tally Chain is a proof-of-work chain where a payment is a receipt. The payer, the payee, the amount, the words and an optional mark are signed and cut into a block. Both sides read that same receipt back. Neither side can change it after the block. The testnet is live. The rules on this page are the rules in the repository, and the test suite runs them.</p>
+
+    <h2>1. The problem</h2>
+    <p>A transfer on a public chain says that value moved. It does not say what the value was for. That sentence lives in a chat, an invoice PDF, or a screenshot, and any of those can be cropped. Two people, or a person and an agent, cannot hold up the same record and know it is the one that was signed.</p>
+
+    <h2>2. Design</h2>
+    <p>The receipt is the transaction. There is no second copy. The words are short enough to read in an explorer. The notch is the hash of those words, recomputed by whoever is looking. An optional mark commits to a larger file without putting the file on the chain. Amounts stay public, because a receipt you cannot show is not a receipt.</p>
+
+    <h2>3. Keys</h2>
+    <p>One 32-byte seed. ed25519. The address is the public key with a checksum, prefixed <code>tally1</code>. The seed is created in the browser and is not sent to the node.</p>
+
+    <h2>4. Consensus</h2>
+    <p>SHA-256 proof of work. Difficulty retargets every block toward 20 seconds and moves at most 4× in a step. Block reward is 8 tTALLY plus fees. Coinbase spends after 3 further blocks. One Node.js process is the node, the wallet’s API and the explorer.</p>
+    <p>The testnet uses SHA-256 so a browser and the node run the same hash. If specialized hardware later crowds ordinary miners out, the hash can change without changing what a receipt is.</p>
+
+    <h2>5. Supply on the testnet</h2>
+    <p>Coins come from block rewards and from the faucet, 25 tTALLY once an hour per address. There is no premine and no treasury key. tTALLY has no market value. $TALLY, the Robinhood Chain token, is a separate asset that carries development to mainnet. Its contract is published when that token launches.</p>
+
+    <h2>6. What comes next</h2>
+    <p><strong>Streams.</strong> A wage that notches on a schedule. Coins already earned stay with the payee when the payer stops the stream.</p>
+    <p><strong>Errands.</strong> Coins locked to a described job. The worker submits a mark. The payer releases the coins, or a deadline returns them.</p>
+    <p><strong>Mainnet.</strong> Genesis after those two are specified, tested and reviewed. The receipt rule does not change.</p>
+
+    <h2>7. What this paper does not claim</h2>
+    <p>Tally does not hide amounts, senders or receivers. It does not replace a court. It does not make an off-chain file permanent; it makes the hash of that file permanent. A signature proves the payer agreed to the bytes in the block. It does not, by itself, prove the work was done. Errands are the phase that binds the coins to that question.</p>
+  </main>
+  <script src="/chrome.js"></script>
+</body>
+</html>

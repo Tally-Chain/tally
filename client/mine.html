@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mine · Tally</title>
+  <link rel="canonical" href="https://tallychain.org/mine">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/style.css">
+  <script type="importmap">
+  { "imports": { "@noble/hashes/": "/vendor/hashes/", "@noble/curves/": "/vendor/curves/" } }
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/"><img src="/mark.svg" width="36" height="36" alt=""> tally</a>
+    <nav>
+      <a href="/">Home</a><a href="/explorer">Explorer</a><a href="/wallet">Wallet</a><a class="on" href="/mine">Mine</a><a href="/docs">Docs</a><a href="/whitepaper">Whitepaper</a>
+    </nav>
+    <a class="btn solid desk" href="/wallet">Open wallet</a>
+    <button class="burger" type="button">Menu</button>
+  </header>
+  <main class="wrap page">
+    <div class="pagehead">
+      <div>
+        <p class="cap">SHA-256 · reward to your address</p>
+        <h1>Mine</h1>
+      </div>
+    </div>
+    <p class="lede">The public node mines slowly on purpose. A browser can win a block. The reward is 8 tTALLY plus fees, and it spends after 3 more blocks. tTALLY has no market value.</p>
+    <div class="statgrid">
+      <div><span>Your hashrate</span><b id="rate">0 H/s</b></div>
+      <div><span>Blocks you found</span><b id="found">0</b></div>
+      <div><span>Height</span><b id="height">…</b></div>
+      <div><span>Reward</span><b>8</b></div>
+    </div>
+    <div class="panel">
+      <label for="addr">Pay rewards to</label>
+      <input id="addr" placeholder="tally1…">
+      <div class="row" style="margin-top:14px">
+        <button class="btn solid" id="go" type="button">Start mining</button>
+        <label class="slider" for="threads">Threads <input id="threads" type="range" min="1" max="8" value="2"> <b id="thread-n">2</b></label>
+        <a class="btn" href="/wallet">Open wallet</a>
+      </div>
+      <p class="muted">Mining runs only while this tab is open.</p>
+    </div>
+    <div class="panel">
+      <p class="cap">Command line</p>
+      <pre class="cli">node miner/miner.js YOUR_TALLY1_ADDRESS --node http://localhost:8344</pre>
+    </div>
+    <div class="panel">
+      <p class="cap">This session</p>
+      <div class="list" id="log"></div>
+    </div>
+  </main>
+  <script src="/chrome.js"></script>
+  <script type="module">
+    import { $, api, toast } from '/common.js';
+    const addr = $('addr');
+    addr.value = localStorage.getItem('tally.mine') || localStorage.getItem('tally.addr') || '';
+    let workers = [];
+    let hashes = 0;
+    let found = 0;
+    let windowStart = performance.now();
+    $('threads').oninput = () => { $('thread-n').textContent = $('threads').value; };
+    function log(line) {
+      const row = document.createElement('div');
+      row.className = 'it';
+      row.innerHTML = `<span>${new Date().toLocaleTimeString()}</span><span>${line}</span><span></span>`;
+      $('log').prepend(row);
+    }
+    function stop() {
+      for (const worker of workers) worker.terminate();
+      workers = [];
+      $('go').textContent = 'Start mining';
+      $('go').dataset.on = '';
+    }
+    async function start() {
+      const address = addr.value.trim();
+      localStorage.setItem('tally.mine', address);
+      const threads = Number($('threads').value);
+      stop();
+      $('go').dataset.on = '1';
+      $('go').textContent = 'Stop';
+      let work;
+      try { work = await api('/api/work?address=' + encodeURIComponent(address)); }
+      catch (error) { toast(error.message, true); stop(); return; }
+      log('work for block ' + work.header.height);
+      for (let i = 0; i < threads; i++) {
+        const worker = new Worker('/mine-worker.js', { type: 'module' });
+        worker.onmessage = async (event) => {
+          if (event.data.hashes) {
+            hashes += event.data.hashes;
+            const seconds = (performance.now() - windowStart) / 1000;
+            if (seconds > 1) {
+              $('rate').textContent = Math.round(hashes / seconds).toLocaleString('en-US') + ' H/s';
+            }
+            return;
+          }
+          if (event.data.solution == null) return;
+          try {
+            const block = await api('/api/work', { id: work.id, nonce: event.data.solution });
+            found += 1;
+            $('found').textContent = String(found);
+            log('found block ' + block.height);
+            toast('block ' + block.height);
+          } catch (error) {
+            log(error.message);
+          }
+          start();
+        };
+        worker.postMessage({ work, start: i * 997, step: threads });
+        workers.push(worker);
+      }
+    }
+    $('go').onclick = () => { if ($('go').dataset.on) stop(); else start(); };
+    setInterval(() => { if ($('go').dataset.on) start(); }, 20000);
+    setInterval(() => api('/api/stats').then((s) => { $('height').textContent = s.height.toLocaleString('en-US'); }).catch(() => {}), 4000);
+  </script>
+</body>
+</html>

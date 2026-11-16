@@ -1,0 +1,23 @@
+{
+  "name": "tally-chain",
+  "version": "0.1.0",
+  "description": "Tally Chain: a payment is a receipt both sides can prove. Testnet node, explorer, wallet, and miner.",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node test/chain.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tally-Chain/tally.git"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.9.7",
+    "@noble/hashes": "^1.8.0"
+  }
+}

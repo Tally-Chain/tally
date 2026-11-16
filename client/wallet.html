@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wallet · Tally</title>
+  <link rel="canonical" href="https://tallychain.org/wallet">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,560&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/style.css">
+  <script type="importmap">
+  { "imports": { "@noble/hashes/": "/vendor/hashes/", "@noble/curves/": "/vendor/curves/" } }
+  </script>
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/"><img src="/mark.svg" width="36" height="36" alt=""> tally</a>
+    <nav>
+      <a href="/">Home</a><a href="/explorer">Explorer</a><a class="on" href="/wallet">Wallet</a><a href="/mine">Mine</a><a href="/docs">Docs</a><a href="/whitepaper">Whitepaper</a>
+    </nav>
+    <a class="btn solid desk" href="/wallet">Open wallet</a>
+    <button class="burger" type="button">Menu</button>
+  </header>
+  <main class="wrap page">
+    <div class="pagehead">
+      <div><p class="cap">Keys stay in this browser</p><h1>Wallet</h1></div>
+    </div>
+    <section id="locked">
+      <div class="panel">
+        <h2 style="font-size:36px">Make a key, or bring one back.</h2>
+        <p class="sub">The seed is 64 hex characters. It is the only way to restore this wallet. The node never receives it.</p>
+        <button class="btn solid" id="create" type="button">Create wallet</button>
+        <label for="seed-in">Restore from a seed</label>
+        <div class="row">
+          <input id="seed-in" placeholder="64 hex characters" autocomplete="off" style="flex:1">
+          <button class="btn" id="restore" type="button">Restore</button>
+        </div>
+      </div>
+    </section>
+    <section id="open" hidden>
+      <div class="panel">
+        <p class="cap">Spendable</p>
+        <h2 id="bal" style="font-size:64px;margin:0">0</h2>
+        <p class="muted" id="maturing"></p>
+        <p class="cap" style="margin-top:18px">Address</p>
+        <p class="seed" id="addr"></p>
+        <div class="row" style="margin-top:12px">
+          <button class="btn solid" id="faucet" type="button">Drip 25 tTALLY</button>
+          <button class="btn" id="copy-addr" type="button">Copy address</button>
+          <button class="btn" id="show-seed" type="button">Show seed</button>
+          <button class="btn" id="forget" type="button">Forget this browser</button>
+        </div>
+        <p class="seed" id="seed-box" hidden></p>
+      </div>
+      <div class="panel">
+        <h2 style="font-size:36px">Cut a receipt</h2>
+        <form id="send">
+          <label for="to">Payee</label>
+          <input id="to" placeholder="tally1…" required>
+          <label for="amount">Amount they receive</label>
+          <input id="amount" inputmode="decimal" placeholder="1.5" required>
+          <label for="memo">What it was for</label>
+          <input id="memo" maxlength="140" placeholder="for the field report" required>
+          <label for="ref">Mark, optional hash of the work</label>
+          <input id="ref" placeholder="64 hex characters, or leave empty" spellcheck="false">
+          <p class="muted">Fee 0.01 tTALLY, paid to the miner. The notch is the hash of the words above.</p>
+          <button class="btn solid" type="submit">Sign and send</button>
+        </form>
+      </div>
+      <div class="panel">
+        <p class="cap">Receipts</p>
+        <div class="list" id="list"></div>
+      </div>
+    </section>
+  </main>
+  <script src="/chrome.js"></script>
+  <script type="module">
+    import { addressFromSecret, parseTally, randomSeed, seedBytes, signTx } from '/protocol.js';
+    import { $, api, short, ago, tally, toast } from '/common.js';
+    const KEY = 'tally.seed';
+    let seed = localStorage.getItem(KEY) || '';
+    let account = null;
+
+    function secret() { return seedBytes(seed); }
+    function address() { return addressFromSecret(secret()); }
+
+    function show(open) {
+      $('locked').hidden = open;
+      $('open').hidden = !open;
+    }
+
+    async function refresh() {
+      account = await api('/api/account/' + address());
+      $('bal').textContent = tally(account.balance).replace(' tTALLY', '');
+      const mat = BigInt(account.maturing);
+      $('maturing').textContent = mat > 0n ? `${tally(account.maturing)} still maturing from mining` : 'tTALLY';
+      $('addr').textContent = address();
+      localStorage.setItem('tally.addr', address());
+      const wait = account.lastFaucet ? Math.max(0, account.lastFaucet + 3600000 - Date.now()) : 0;
+      $('faucet').disabled = wait > 0;
+      $('faucet').textContent = wait > 0 ? `Faucet in ${Math.ceil(wait / 60000)}m` : 'Drip 25 tTALLY';
+      $('list').innerHTML = account.receipts.map((tx) => {
+        const incoming = tx.type === 'faucet' || tx.from !== address();
+        return `<a href="/explorer#/tx/${tx.id}"><span>${incoming ? 'received' : 'paid'}</span><span>${tx.memo}</span><span>${incoming ? '+' : '−'}${tally(tx.amount)} · ${ago(tx.time)}</span></a>`;
+      }).join('') || '<p class="muted">No receipts yet. Take a drip, then pay someone.</p>';
+    }
+
+    async function publish(tx) {
+      await api('/api/tx', { tx });
+      toast('receipt is in the mempool');
+      await refresh();
+    }
+
+    $('create').onclick = () => {
+      seed = randomSeed();
+      localStorage.setItem(KEY, seed);
+      show(true);
+      $('seed-box').hidden = false;
+      $('seed-box').textContent = seed;
+      toast('write the seed down');
+      refresh().catch((error) => toast(error.message, true));
+    };
+    $('restore').onclick = () => {
+      try {
+        seedBytes($('seed-in').value.trim());
+        seed = $('seed-in').value.trim().toLowerCase();
+        localStorage.setItem(KEY, seed);
+        show(true);
+        refresh().catch((error) => toast(error.message, true));
+      } catch (error) { toast(error.message, true); }
+    };
+    $('copy-addr').onclick = () => navigator.clipboard.writeText(address()).then(() => toast('address copied'));
+    $('show-seed').onclick = () => { $('seed-box').hidden = false; $('seed-box').textContent = seed; };
+    $('forget').onclick = () => {
+      if (!confirm('Forget the seed in this browser? You cannot get it back from the node.')) return;
+      localStorage.removeItem(KEY);
+      seed = '';
+      show(false);
+    };
+    $('faucet').onclick = async () => {
+      try {
+        $('faucet').disabled = true;
+        const tx = signTx({
+          type: 'faucet', from: address(), to: address(), amount: '25000000', fee: '0',
+          nonce: account.nonce, memo: 'faucet', ref: '',
+        }, secret());
+        await publish(tx);
+      } catch (error) { toast(error.message, true); refresh(); }
+    };
+    $('send').onsubmit = async (event) => {
+      event.preventDefault();
+      try {
+        const tx = signTx({
+          type: 'pay',
+          from: address(),
+          to: $('to').value.trim(),
+          amount: parseTally($('amount').value).toString(),
+          fee: '10000',
+          nonce: account.nonce,
+          memo: $('memo').value,
+          ref: $('ref').value.trim(),
+        }, secret());
+        await publish(tx);
+        $('send').reset();
+      } catch (error) { toast(error.message, true); }
+    };
+
+    if (seed) {
+      try { address(); show(true); refresh().catch((error) => toast(error.message, true)); }
+      catch { localStorage.removeItem(KEY); seed = ''; }
+    }
+    setInterval(() => { if (seed) refresh().catch(() => {}); }, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tally logo</title>
+  <style>
+    body { margin: 0; background: #2a261f; color: #f6f0e6; font: 16px/1.4 "Segoe UI", sans-serif; }
+    main { width: min(1100px, calc(100% - 48px)); margin: 0 auto; padding: 36px 0 64px; }
+    h1 { font-weight: 600; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: #b7ab9c; }
+    figure { margin: 0 0 28px; }
+    figcaption { margin-top: 8px; color: #b7ab9c; font-size: 13px; }
+    .sheet { background: #12100e; border-radius: 28px; padding: 36px; }
+    img { display: block; max-width: 100%; height: auto; }
+    .sizes { display: flex; gap: 28px; align-items: end; background: #12100e; border-radius: 28px; padding: 28px; }
+    .circle { width: 180px; height: 180px; border-radius: 50%; overflow: hidden; }
+    .circle img { width: 180px; height: 180px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Full lockup</h1>
+    <figure class="sheet"><img src="logo.svg" alt="Tally lockup" width="1100"></figure>
+    <h1>Mark, large</h1>
+    <figure class="sheet" style="display:flex;justify-content:center"><img src="mark.svg" alt="Tally mark" width="280" height="280"></figure>
+    <h1>Same mark at nav size, 48, and 96</h1>
+    <div class="sizes">
+      <img src="mark.svg" width="22" height="22" alt="">
+      <img src="mark.svg" width="48" height="48" alt="">
+      <img src="mark.svg" width="96" height="96" alt="">
+    </div>
+    <h1 style="margin-top:28px">X avatar, circled the way the profile crops it</h1>
+    <figure><div class="circle"><img src="avatar.svg" alt="Tally avatar"></div></figure>
+    <h1>X header</h1>
+    <figure class="sheet" style="padding:0;overflow:hidden"><img src="x-header.svg" alt="Tally X header" width="1100"></figure>
+  </main>
+</body>
+</html>

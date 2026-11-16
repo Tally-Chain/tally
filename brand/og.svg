@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#12100e"/>
+  <radialGradient id="glow" cx="50%" cy="0%" r="65%">
+    <stop offset="0%" stop-color="#ee8b3a" stop-opacity="0.22"/>
+    <stop offset="72%" stop-color="#ee8b3a" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <g transform="translate(72 195) scale(7.5)">
+    <rect width="32" height="32" rx="8" fill="#1c1915"/>
+    <rect x="6.4" y="6.6" width="19.2" height="4.8" fill="#f6f0e6"/>
+    <rect x="13.6" y="6.6" width="4.8" height="18.8" fill="#f6f0e6"/>
+    <path d="M5.6 11.5h20.8l-2.2 2.8H7.8z" fill="#ee8b3a"/>
+  </g>
+  <text x="340" y="275" font-family="Segoe UI, Arial, sans-serif" font-weight="600" font-size="92" fill="#f6f0e6" letter-spacing="-2">tally</text>
+  <text x="340" y="360" font-family="Georgia, serif" font-style="italic" font-size="48" fill="#ffd8b4">Both halves match.</text>
+</svg>

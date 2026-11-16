@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tally Chain · Both halves match</title>
+  <meta name="description" content="Tally is a proof-of-work chain where every payment is a receipt. Payer and payee read the same notch from the block.">
+  <meta property="og:title" content="Tally Chain · Both halves match">
+  <meta property="og:description" content="A payment is a receipt. The words, the amount and the notch are cut once. Both sides read the same mark.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tallychain.org/">
+  <meta property="og:image" content="https://tallychain.org/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tallychain.org/og.png">
+  <link rel="canonical" href="https://tallychain.org/">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,560;1,9..144,520&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="/"><img src="/mark.svg" width="36" height="36" alt=""> tally</a>
+    <nav>
+      <a class="on" href="/">Home</a>
+      <a href="/explorer">Explorer</a>
+      <a href="/wallet">Wallet</a>
+      <a href="/mine">Mine</a>
+      <a href="/docs">Docs</a>
+      <a href="/whitepaper">Whitepaper</a>
+    </nav>
+    <a class="btn solid desk" href="/wallet">Open wallet</a>
+    <button class="burger" type="button">Menu</button>
+  </header>
+  <main class="wrap">
+    <section class="hero">
+      <p class="cap">A receipt chain · public testnet</p>
+      <h1>Both halves<br><em>match.</em></h1>
+      <p class="lede">Tally is a proof-of-work chain where a payment is a receipt. The words, the amount and the notch are cut once. The payer and the payee read that same mark back from the block. A chat can be cropped. A block cannot.</p>
+      <div class="row">
+        <a class="btn solid" href="/wallet">Open wallet</a>
+        <a class="btn" href="/explorer">Explorer</a>
+        <a class="btn" href="/mine">Start mining</a>
+      </div>
+      <a class="live" href="/explorer">Live testnet · block <b id="height">…</b></a>
+      <div class="specimen" aria-label="A receipt shown to both sides">
+        <div class="half">
+          <span class="cap">Payer</span>
+          <strong>2.00</strong>
+          <p>for the field report</p>
+          <code>notch of those words, signed by the payer</code>
+        </div>
+        <div class="cut" aria-hidden="true"></div>
+        <div class="half">
+          <span class="cap">Payee</span>
+          <strong>2.00</strong>
+          <p>for the field report</p>
+          <code>the same notch, read from the same block</code>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <h2>Cut once.</h2>
+      <p class="sub">Three steps. After the block, neither side has a private copy to edit.</p>
+      <div class="steps">
+        <article>
+          <b>01</b>
+          <h3>Write</h3>
+          <p>The payer writes who is paid, how much, and what it was for. One line, up to 140 bytes. An optional mark is the hash of a file or a post.</p>
+        </article>
+        <article>
+          <b>02</b>
+          <h3>Sign</h3>
+          <p>The wallet signs those bytes with a key that never leaves the browser. The notch is SHA-256 of the words. Change a letter and the signature dies.</p>
+        </article>
+        <article>
+          <b>03</b>
+          <h3>Notch</h3>
+          <p>A miner cuts the receipt into a block. The payee opens the same transaction and hashes the words again. The two halves match, or the receipt is false.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>What the block holds.</h2>
+      <div class="cards">
+        <article><div class="k">Words</div><h3>The line you can read</h3><p>What the payment was for. Both wallets show it. The chain rejects a line break, so the receipt cannot hide a second version.</p></article>
+        <article><div class="k">Notch</div><h3>Hash of those words</h3><p>Anyone can recompute it. The explorer does it in your browser and checks the signature against the payer’s address.</p></article>
+        <article><div class="k">Mark</div><h3>Optional hash of the work</h3><p>A 32-byte hash of the report, the post, or the file. The file stays off-chain. The mark is what both sides compare.</p></article>
+        <article><div class="k">Public</div><h3>A receipt is meant to be shown</h3><p>Amounts are visible. Hiding them would make the two halves impossible to hold up next to each other. That is the product.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="live">
+      <h2>On the testnet now.</h2>
+      <p class="sub">These numbers come from this node and move when a block lands.</p>
+      <div class="statgrid">
+        <div><span>Height</span><b id="s-height">…</b></div>
+        <div><span>Receipts</span><b id="s-receipts">…</b></div>
+        <div><span>Supply</span><b id="s-supply">…</b></div>
+        <div><span>Block time</span><b id="s-time">…</b></div>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap">
+      <h2>From a receipt to a wage.</h2>
+      <ol class="road">
+        <li><span class="tag">Live</span><div><h3>Receipts</h3><p class="sub">Signed payments with words, a notch and an optional mark. Wallet, explorer, faucet and open mining.</p></div></li>
+        <li><span class="tag wait">Next</span><div><h3>Streams</h3><p class="sub">A wage that notches every few blocks. What is already earned stays with the payee when the stream stops.</p></div></li>
+        <li><span class="tag wait">Then</span><div><h3>Errands</h3><p class="sub">Coins locked to a job. The worker submits a mark, the payer releases them, or the deadline returns the coins.</p></div></li>
+        <li><span class="tag wait">After that</span><div><h3>Mainnet</h3><p class="sub">Genesis once streams and errands are specified and tested. $TALLY on Robinhood Chain carries the work there. tTALLY does not.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section" id="faq">
+      <h2>Questions.</h2>
+      <div class="faq">
+        <details open>
+          <summary>Is tTALLY the same as $TALLY?</summary>
+          <p>No. tTALLY is the testnet coin. The faucet drips it and miners earn it. It has no market. $TALLY is the Robinhood Chain token that funds the path to mainnet. Its contract is published at launch.</p>
+        </details>
+        <details>
+          <summary>Where are my keys?</summary>
+          <p>In this browser. The wallet makes a 32-byte seed on your device and derives an ed25519 key from it. The node never sees the seed. The seed is the only way back in.</p>
+        </details>
+        <details>
+          <summary>What if the payee is offline?</summary>
+          <p>The receipt does not need them. It sits in the block. When they open it, their wallet hashes the same words and shows the same notch.</p>
+        </details>
+        <details>
+          <summary>Can I run a node?</summary>
+          <p>Yes. One Node.js program is the node, the explorer and the wallet. Clone the <a href="https://github.com/Tally-Chain/tally">repository</a>, install, and start. You hold the chain yourself.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+  <footer class="foot">
+    <div>
+      <a class="logo" href="/"><img src="/mark.svg" width="36" height="36" alt=""> tally</a>
+      <p class="fine"><a href="https://tallychain.org">tallychain.org</a> · a public testnet. tTALLY has no market value. $TALLY on Robinhood Chain carries the project to mainnet.</p>
+    </div>
+    <div class="cols">
+      <div><a href="/whitepaper">Whitepaper</a><a href="/docs">Docs</a></div>
+      <div><a href="/explorer">Explorer</a><a href="/wallet">Wallet</a><a href="/mine">Mine</a></div>
+      <div><a href="/#how">How a receipt works</a><a href="/#roadmap">Roadmap</a><a href="/docs#api">API</a><a href="https://github.com/Tally-Chain/tally">GitHub</a></div>
+    </div>
+  </footer>
+  <script src="/chrome.js"></script>
+  <script>
+    const fmt = (n) => Number(n).toLocaleString('en-US');
+    fetch('/api/stats').then((r) => r.json()).then((s) => {
+      const whole = (BigInt(s.supply) / 1000000n).toString();
+      document.getElementById('height').textContent = fmt(s.height);
+      document.getElementById('s-height').textContent = fmt(s.height);
+      document.getElementById('s-receipts').textContent = fmt(s.receipts);
+      document.getElementById('s-supply').textContent = fmt(whole);
+      document.getElementById('s-time').textContent = s.blockTime + 's';
+    }).catch(() => {});
+  </script>
+</body>
+</html>
